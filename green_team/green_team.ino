@@ -7,8 +7,8 @@ enum engine_states {
   BACKWARDS
 };
 
-engine_states main_engine_state = FORWARD;
-uint8_t speed = 70;
+engine_states main_engine_state = STOP;
+int main_speed = MIN_ENGINE_SPEED;
 
 void engine_control(uint8_t speed_pwm, engine_states state) {
   switch (state)
@@ -30,7 +30,11 @@ void engine_control(uint8_t speed_pwm, engine_states state) {
   }
   delay(100);
 
-  analogWrite(ENGINE_EN, speed_pwm);
+  analogWrite(ENGINE_EN, main_speed);
+}
+
+void increase_speed() {
+
 }
 
 Servo myservo;
@@ -43,9 +47,9 @@ void setup() {
 
   myservo.attach(SERVO_INPUT);
 
-  engine_control(speed, STOP);
+  engine_control(main_speed, main_engine_state);
 
-  myservo.write(45); 
+  myservo.write(START_SERVO_DEGREE); 
 }
 
 void loop() {
