@@ -9,8 +9,9 @@ enum engine_states {
 
 engine_states main_engine_state = STOP;
 int main_speed = MIN_ENGINE_SPEED;
+int prev_main_speed = MIN_ENGINE_SPEED;
 
-void engine_control(uint8_t speed_pwm, engine_states state) {
+void engine_control(int speed_pwm, engine_states state) {
   switch (state)
   {
     case FORWARD:
@@ -30,16 +31,33 @@ void engine_control(uint8_t speed_pwm, engine_states state) {
   }
   delay(100);
 
-  analogWrite(ENGINE_EN, main_speed);
+  analogWrite(ENGINE_EN, speed_pwm);
 }
 
 void increase_speed() {
+  if (main_speed == 0)
+  {
+    main_speed = MIN_ENGINE_SPEED;
+  }
+  else if (main_speed < MAX_ENGINE_SPEED)
+  {
+    main_speed = main_speed + SPEED_STEP;
+  } 
+  else if (main_speed < 0 && main_speed > -MAX_ENGINE_SPEED)
+  {
+    main_speed = 0;
+  }
+  Serial.println(main_speed);
+}
 
+void decrease_speed() {
+  
 }
 
 Servo myservo;
 
 void setup() {
+  Serial.begin(115200);
   // put your setup code here, to run once:
   pinMode(ENGINE_EN, OUTPUT);
   pinMode(ENGINE_INPUT_1, OUTPUT);
@@ -53,6 +71,8 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
 
+  // put your main code here, to run repeatedly:
+increase_speed();
+delay(200);
 }

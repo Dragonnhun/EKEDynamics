@@ -6,6 +6,7 @@
 #define SERVO_INPUT D1
 //settings
 #define MIN_ENGINE_SPEED 300
-#define SPEED_STEP 5
+#define MAX_ENGINE_SPEED 1000
+#define SPEED_STEP 50
 #define START_SERVO_DEGREE 90
 #define MAX_SERVO_DEGREE 45
