@@ -1,26 +1,23 @@
 #include "settings.h"
 #include <Servo.h>
 
-enum engine_states {
+enum engineState {
   STOP,
   FORWARD,
-  BACKWARDS
+  BACKWARD,
 };
 
-enum servo_states {
-  CENTER;
+enum servoState {
+  CENTER,
   LEFT,
   RIGHT,
-}
+};
 
-engine_states main_engine_state = STOP;
-uint16_t main_speed = MIN_ENGINE_SPEED;
+// Engine related code
+engineState mainEngineState = FORWARD;
+int16_t mainSpeed = MIN_ENGINE_SPEED;
 
-servo_states start_servo_state = CENTER;
-uint16_t start_servo_degree = START_SERVO_DEGREE;
-uint16_t curret_servo_degree = start_servo_degree;
-
-void engine_control(uint16_t speed_pwm, engine_states state) {
+void engineControl(int16_t speedPwm, engineState state) {
   switch (state)
   {
     case FORWARD:
@@ -28,7 +25,7 @@ void engine_control(uint16_t speed_pwm, engine_states state) {
       digitalWrite(ENGINE_INPUT_2, HIGH);
       break;
 
-    case BACKWARDS:
+    case BACKWARD:
       digitalWrite(ENGINE_INPUT_1, HIGH);
       digitalWrite(ENGINE_INPUT_2, LOW);
       break;
@@ -40,50 +37,69 @@ void engine_control(uint16_t speed_pwm, engine_states state) {
   }
   delay(100);
 
-  analogWrite(ENGINE_EN, main_speed);
+  analogWrite(ENGINE_ENABLE, mainSpeed);
 }
 
-void servo_control(uint16_t current_degrees, servo_states state, Servo myservo) {  
+// Servo related code
+Servo servo;
+
+servoState startServoState = CENTER;
+int16_t currentServoDegrees = START_SERVO_DEGREES;
+
+void servoControl(servoState state, Servo servo) {  
   switch(state) {
     case LEFT:
-      if(current_degrees < 135 - 5) {
-        current_degrees = current_degrees + 5;
-        myservo.write(current_degrees);
+      if(currentServoDegrees <= MAX_SERVO_DEGREES - 5) {
+        currentServoDegrees = currentServoDegrees + 5;
+        servo.write(currentServoDegrees);
       }
       break;
       
     case RIGHT:
-      if(current_degrees > 45 + 5) {
-        current_degrees = current_degrees - 5;
-        myservo.write(current_degrees);
+      if(currentServoDegrees >= MIN_SERVO_DEGREES + 5) {
+        currentServoDegrees = currentServoDegrees - 5;
+        servo.write(currentServoDegrees);
       }
       break;
 
     default:
-      myservo.write(START_SERVO_DEGREE);
+      servo.write(START_SERVO_DEGREES);
       break;
   }
+
+  delay(100);   
 }
 
-void increase_speed() {
+void increaseSpeed() {
 
 }
-
-Servo myservo;
 
 void setup() {
   // put your setup code here, to run once:
-  pinMode(ENGINE_EN, OUTPUT);
+  Serial.begin(115200);
+  
+  pinMode(ENGINE_ENABLE, OUTPUT);
   pinMode(ENGINE_INPUT_1, OUTPUT);
   pinMode(ENGINE_INPUT_2, OUTPUT);
 
-  myservo.attach(SERVO_INPUT);
+  servo.attach(SERVO_INPUT);
 
-  engine_control(main_speed, main_engine_state);
-  servo_control(START_SERVO_DEGREE, start_servo_state, myservo);
+  engineControl(mainSpeed, mainEngineState);
+  servoControl(startServoState, servo);  
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
 
+  engineControl(600, mainEngineState);
+
+  for(int i = 0; i < 30; i++) {
+    // servoControl(LEFT, servo);
+    Serial.println(currentServoDegrees);
+  }
+
+  for(int i = 0; i < 30; i++) {
+    // servoControl(RIGHT, servo);
+    Serial.println(currentServoDegrees);
+  }
 }
