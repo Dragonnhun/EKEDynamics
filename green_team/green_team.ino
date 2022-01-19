@@ -166,14 +166,13 @@ void irControl() {
         break;
     }
     
-    irrecv.resume();  // Receive the next value
+    irrecv.resume();
   }
   
   delay(100);
 }
 
 void setup() {
-  // put your setup code here, to run once:
   Serial.begin(115200);
 
   pinMode(ENGINE_ENABLE, OUTPUT);
