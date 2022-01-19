@@ -1,16 +1,24 @@
 #include "settings.h"
-#include <Servo.h>
 
-enum engine_states {
+enum engineState {
   STOP,
   FORWARD,
-  BACKWARDS
+  BACKWARD,
 };
 
-engine_states main_engine_state = STOP;
-int main_speed = MIN_ENGINE_SPEED;
+enum servoState {
+  CENTER,
+  LEFT,
+  RIGHT,
+};
 
-void engine_control(uint8_t speed_pwm, engine_states state) {
+// ENGINE
+engineState currentEngineState = STOP;
+int16_t currentSpeed = STOP_ENGINE_SPEED;
+IRrecv irrecv(IR_SENSOR);
+decode_results results;
+
+void engineControl(int16_t speedPwm, engineState state) {
   switch (state)
   {
     case FORWARD:
@@ -18,7 +26,7 @@ void engine_control(uint8_t speed_pwm, engine_states state) {
       digitalWrite(ENGINE_INPUT_2, HIGH);
       break;
 
-    case BACKWARDS:
+    case BACKWARD:
       digitalWrite(ENGINE_INPUT_1, HIGH);
       digitalWrite(ENGINE_INPUT_2, LOW);
       break;
@@ -28,31 +36,157 @@ void engine_control(uint8_t speed_pwm, engine_states state) {
       digitalWrite(ENGINE_INPUT_2, LOW);
       break;
   }
+  
   delay(100);
 
-  analogWrite(ENGINE_EN, main_speed);
+  analogWrite(ENGINE_ENABLE, speedPwm);
 }
 
-void increase_speed() {
+void increaseSpeed() {
+  if (currentEngineState == BACKWARD) {
+    if (currentSpeed >= MIN_ENGINE_SPEED + SPEED_STEP) {
+      currentSpeed = currentSpeed - SPEED_STEP;
+      engineControl(currentSpeed, currentEngineState);
+      return;
+    }
 
+    if (currentSpeed == MIN_ENGINE_SPEED) {
+      currentEngineState == STOP;
+      return;
+    }
+  }
+  
+  if (currentEngineState == STOP) {
+    currentEngineState = FORWARD;
+  }
+
+  if (currentEngineState == FORWARD) {
+    if (currentSpeed <= MAX_ENGINE_SPEED - SPEED_STEP) {
+      currentSpeed = currentSpeed + SPEED_STEP;
+      engineControl(currentSpeed, currentEngineState);
+      return;
+    }
+  }
 }
 
-Servo myservo;
+void decreaseSpeed() {
+  if (currentEngineState == FORWARD) {
+    if (currentSpeed >= MIN_ENGINE_SPEED + SPEED_STEP) {
+      currentSpeed = currentSpeed - SPEED_STEP;
+      engineControl(currentSpeed, currentEngineState);
+      return;
+    }
+
+    if (currentSpeed == MIN_ENGINE_SPEED) {
+      currentEngineState == STOP;
+      return;
+    }
+  }
+  
+  if (currentEngineState == STOP) {
+    currentEngineState = BACKWARD;
+  }
+
+  if (currentEngineState == BACKWARD) {
+    if (currentSpeed <= MAX_ENGINE_SPEED - SPEED_STEP) {
+      currentSpeed = currentSpeed + SPEED_STEP;
+      engineControl(currentSpeed, currentEngineState);
+      return;
+    }
+  }
+}
+
+void stopEngine() {
+  currentEngineState = STOP;
+  currentSpeed = STOP_ENGINE_SPEED;
+  engineControl(currentSpeed, currentEngineState);
+}
+
+// SERVO
+Servo servo;
+
+servoState currentServoState = CENTER;
+int16_t currentServoDegrees = START_SERVO_DEGREES;
+
+void servoControl(servoState state) {
+  switch (state) {
+    case LEFT:
+      if (currentServoDegrees <= MAX_SERVO_DEGREES - 5) {
+        currentServoDegrees = currentServoDegrees + 5;
+        servo.write(currentServoDegrees);
+      }
+      break;
+
+    case RIGHT:
+      if (currentServoDegrees >= MIN_SERVO_DEGREES + 5) {
+        currentServoDegrees = currentServoDegrees - 5;
+        servo.write(currentServoDegrees);
+      }
+      break;
+
+    default:
+      servo.write(START_SERVO_DEGREES);
+      break;
+  }
+
+  delay(100);
+}
+
+// IR SENSOR
+void irControl() {
+  if (irrecv.decode(&results)) {
+    serialPrintUint64(results.value, HEX);
+    
+    switch (results.value) {
+      case IR_BTN_FORWARD:
+        increaseSpeed();
+        break;
+        
+      case IR_BTN_BACKWARD:
+        decreaseSpeed();
+        break;
+        
+      case IR_BTN_LEFT:
+        servoControl(LEFT);
+        break;
+        
+      case IR_BTN_RIGHT:
+        servoControl(RIGHT);
+        break;
+        
+      case IR_BTN_STOP:
+        stopEngine();
+        break;
+        
+      case IR_BTN_SENSOR_TOGGLE:
+        // Sensor toggle method call...
+        break;
+        
+      default:
+        break;
+    }
+    
+    irrecv.resume();  // Receive the next value
+  }
+  
+  delay(100);
+}
 
 void setup() {
   // put your setup code here, to run once:
-  pinMode(ENGINE_EN, OUTPUT);
+  Serial.begin(115200);
+
+  pinMode(ENGINE_ENABLE, OUTPUT);
   pinMode(ENGINE_INPUT_1, OUTPUT);
   pinMode(ENGINE_INPUT_2, OUTPUT);
 
-  myservo.attach(SERVO_INPUT);
+  servo.attach(SERVO_INPUT);
+  irrecv.enableIRIn();
 
-  engine_control(main_speed, main_engine_state);
-
-  myservo.write(START_SERVO_DEGREE); 
+  engineControl(currentSpeed, currentEngineState);
+  servoControl(currentServoState);
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-
+  irControl();
 }

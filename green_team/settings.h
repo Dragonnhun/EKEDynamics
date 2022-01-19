@@ -1,11 +1,37 @@
-//l293d h-bridge 
-#define ENGINE_EN D4
+#include <Arduino.h>
+#include <IRremoteESP8266.h>
+#include <IRrecv.h>
+#include <IRutils.h>
+#include <Servo.h>
+
+// L293D H-BRIDGE
+#define ENGINE_ENABLE D4
 #define ENGINE_INPUT_1 D5
 #define ENGINE_INPUT_2 D6
-//sg90 micro servo
+
+// SG90 MICRO SERVO
 #define SERVO_INPUT D1
-//settings
+
+// IR SENSOR
+#define IR_SENSOR D3
+
+// SETTINGS
+
+// ENGINE
 #define MIN_ENGINE_SPEED 300
-#define SPEED_STEP 5
-#define START_SERVO_DEGREE 90
-#define MAX_SERVO_DEGREE 45
+#define MAX_ENGINE_SPEED 1000
+#define STOP_ENGINE_SPEED 200
+#define SPEED_STEP 100
+
+// SERVO
+#define START_SERVO_DEGREES 90
+#define MAX_SERVO_DEGREES 135
+#define MIN_SERVO_DEGREES 45
+
+// IR SENSOR
+#define IR_BTN_FORWARD 0xFF629D
+#define IR_BTN_BACKWARD 0xFFA857
+#define IR_BTN_LEFT 0xFF22DD
+#define IR_BTN_RIGHT 0xFFC23D
+#define IR_BTN_STOP 0xFF02FD
+#define IR_BTN_SENSOR_TOGGLE 0xFF42BD
