@@ -44,14 +44,14 @@ void mainEngineControl(int16_t speedPwm, mainEngineState state) {
 
 void increaseSpeed() {
   if (currentMainEngineState == BACKWARD) {
-    if (currentMainSpeed >= MIN_MAIN_ENGINE_SPEED + MAIN_ENGINE_SPEED_STEP) {
+    if (currentMainSpeed >= MIN_MAIN_ENGINE_SPEED) {
       currentMainSpeed = currentMainSpeed - MAIN_ENGINE_SPEED_STEP;
       mainEngineControl(currentMainSpeed, currentMainEngineState);
       return;
     }
 
-    if (currentMainSpeed == MIN_MAIN_ENGINE_SPEED) {
-      currentMainEngineState == STOP;
+    if (currentMainSpeed <= MIN_MAIN_ENGINE_SPEED) {
+      currentMainEngineState = STOP;
       return;
     }
   }
@@ -61,7 +61,7 @@ void increaseSpeed() {
   }
 
   if (currentMainEngineState == FORWARD) {
-    if (currentMainSpeed <= MAX_MAIN_ENGINE_SPEED - MAIN_ENGINE_SPEED_STEP) {
+    if (currentMainSpeed < MAX_MAIN_ENGINE_SPEED) {
       currentMainSpeed = currentMainSpeed + MAIN_ENGINE_SPEED_STEP;
       mainEngineControl(currentMainSpeed, currentMainEngineState);
       return;
@@ -71,14 +71,14 @@ void increaseSpeed() {
 
 void decreaseSpeed() {
   if (currentMainEngineState == FORWARD) {
-    if (currentMainSpeed >= MIN_MAIN_ENGINE_SPEED + MAIN_ENGINE_SPEED_STEP) {
+    if (currentMainSpeed >= MIN_MAIN_ENGINE_SPEED) {
       currentMainSpeed = currentMainSpeed - MAIN_ENGINE_SPEED_STEP;
       mainEngineControl(currentMainSpeed, currentMainEngineState);
       return;
     }
 
-    if (currentMainSpeed == MIN_MAIN_ENGINE_SPEED) {
-      currentMainEngineState == STOP;
+    if (currentMainSpeed <= MIN_MAIN_ENGINE_SPEED) {
+      currentMainEngineState = STOP;
       return;
     }
   }
@@ -88,7 +88,7 @@ void decreaseSpeed() {
   }
 
   if (currentMainEngineState == BACKWARD) {
-    if (currentMainSpeed <= MAX_MAIN_ENGINE_SPEED - MAIN_ENGINE_SPEED_STEP) {
+    if (currentMainSpeed < MAX_MAIN_ENGINE_SPEED) {
       currentMainSpeed = currentMainSpeed + MAIN_ENGINE_SPEED_STEP;
       mainEngineControl(currentMainSpeed, currentMainEngineState);
       return;
@@ -131,14 +131,14 @@ void turningEngineControl(int16_t speedPwm, turningEngineState state) {
 
 void turnRight() {
   if (currentTurningEngineState == LEFT) {
-    if (currentTurningSpeed >= MIN_TURNING_ENGINE_SPEED + TURNING_ENGINE_SPEED_STEP) {
+    if (currentTurningSpeed >= MIN_TURNING_ENGINE_SPEED) {
       currentTurningSpeed = currentTurningSpeed - TURNING_ENGINE_SPEED_STEP;
       turningEngineControl(currentTurningSpeed, currentTurningEngineState);
       return;
     }
 
-    if (currentTurningSpeed == MIN_TURNING_ENGINE_SPEED) {
-      currentTurningEngineState == NONE;
+    if (currentTurningSpeed < MIN_TURNING_ENGINE_SPEED) {
+      currentTurningEngineState = NONE;
       return;
     }
   }
@@ -148,7 +148,7 @@ void turnRight() {
   }
 
   if (currentTurningEngineState == RIGHT) {
-    if (currentTurningSpeed <= MAX_TURNING_ENGINE_SPEED - TURNING_ENGINE_SPEED_STEP) {
+    if (currentTurningSpeed < MAX_TURNING_ENGINE_SPEED) {
       currentTurningSpeed = currentTurningSpeed + TURNING_ENGINE_SPEED_STEP;
       turningEngineControl(currentTurningSpeed, currentTurningEngineState);
       return;
@@ -158,14 +158,14 @@ void turnRight() {
 
 void turnLeft() {
   if (currentTurningEngineState == RIGHT) {
-    if (currentTurningSpeed >= MIN_TURNING_ENGINE_SPEED + TURNING_ENGINE_SPEED_STEP) {
+    if (currentTurningSpeed >= MIN_TURNING_ENGINE_SPEED) {
       currentTurningSpeed = currentTurningSpeed - TURNING_ENGINE_SPEED_STEP;
       turningEngineControl(currentTurningSpeed, currentTurningEngineState);
       return;
     }
 
-    if (currentTurningSpeed == MIN_TURNING_ENGINE_SPEED) {
-      currentTurningEngineState == NONE;
+    if (currentTurningSpeed < MIN_TURNING_ENGINE_SPEED) {
+      currentTurningEngineState = NONE;
       return;
     }
   }
@@ -175,7 +175,7 @@ void turnLeft() {
   }
 
   if (currentTurningEngineState == LEFT) {
-    if (currentTurningSpeed <= MAX_TURNING_ENGINE_SPEED - TURNING_ENGINE_SPEED_STEP) {
+    if (currentTurningSpeed < MAX_TURNING_ENGINE_SPEED) {
       currentTurningSpeed = currentTurningSpeed + TURNING_ENGINE_SPEED_STEP;
       turningEngineControl(currentTurningSpeed, currentTurningEngineState);
       return;
@@ -196,26 +196,42 @@ decode_results results;
 void irControl() {
   if (irrecv.decode(&results)) {
     serialPrintUint64(results.value, HEX);
+    Serial.println();
     
     switch (results.value) {
       case IR_BTN_FORWARD:
         increaseSpeed();
+        Serial.println(currentMainSpeed);
+        Serial.println(currentMainEngineState);
+        Serial.println();
         break;
         
       case IR_BTN_BACKWARD:
         decreaseSpeed();
+        Serial.println(currentMainSpeed);
+        Serial.println(currentMainEngineState);
+        Serial.println();
         break;
         
       case IR_BTN_LEFT:
         turnLeft();
+        Serial.println(currentTurningSpeed);
+        Serial.println(currentTurningEngineState);
+        Serial.println();
         break;
         
       case IR_BTN_RIGHT:
         turnRight();
+        Serial.println(currentTurningSpeed);
+        Serial.println(currentTurningEngineState);
+        Serial.println();
         break;
         
       case IR_BTN_STOP:
         stopMainEngine();
+        Serial.println(currentMainSpeed);
+        Serial.println(currentMainEngineState);
+        Serial.println();
         break;
         
       case IR_BTN_SENSOR_TOGGLE:
@@ -284,9 +300,14 @@ void setup() {
   pinMode(MAIN_ENGINE_INPUT_1, OUTPUT);
   pinMode(MAIN_ENGINE_INPUT_2, OUTPUT);
 
+  pinMode(TURNING_ENGINE_ENABLE, OUTPUT);
+  pinMode(TURNING_ENGINE_INPUT_1, OUTPUT);
+  pinMode(TURNING_ENGINE_INPUT_2, OUTPUT);
+
   irrecv.enableIRIn();
 
   mainEngineControl(currentMainSpeed, currentMainEngineState);
+  turningEngineControl(currentTurningSpeed, currentTurningEngineState);
   WiFiManager wifiManager;
   wifiManager.setAPCallback(configModeCallback);
   String hostname(HOSTNAME);
