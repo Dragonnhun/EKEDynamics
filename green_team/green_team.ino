@@ -1,138 +1,198 @@
 #include "settings.h"
 
-enum engineState {
+enum mainEngineState {
   STOP,
   FORWARD,
   BACKWARD,
 };
 
-enum servoState {
-  CENTER,
+enum turningEngineState {
+  NONE,
   LEFT,
   RIGHT,
 };
 
-// ENGINE
-engineState currentEngineState = STOP;
-int16_t currentSpeed = STOP_ENGINE_SPEED;
-IRrecv irrecv(IR_SENSOR);
-decode_results results;
+// MAIN ENGINE
+mainEngineState currentMainEngineState = STOP;
+int16_t currentMainSpeed = STOP_MAIN_ENGINE_SPEED;
 
-void engineControl(int16_t speedPwm, engineState state) {
+ESP8266WebServer server(80);
+
+void mainEngineControl(int16_t speedPwm, mainEngineState state) {
   switch (state)
   {
     case FORWARD:
-      digitalWrite(ENGINE_INPUT_1, LOW);
-      digitalWrite(ENGINE_INPUT_2, HIGH);
+      digitalWrite(MAIN_ENGINE_INPUT_1, LOW);
+      digitalWrite(MAIN_ENGINE_INPUT_2, HIGH);
       break;
 
     case BACKWARD:
-      digitalWrite(ENGINE_INPUT_1, HIGH);
-      digitalWrite(ENGINE_INPUT_2, LOW);
+      digitalWrite(MAIN_ENGINE_INPUT_1, HIGH);
+      digitalWrite(MAIN_ENGINE_INPUT_2, LOW);
       break;
 
     default:
-      digitalWrite(ENGINE_INPUT_1, LOW);
-      digitalWrite(ENGINE_INPUT_2, LOW);
+      digitalWrite(MAIN_ENGINE_INPUT_1, LOW);
+      digitalWrite(MAIN_ENGINE_INPUT_2, LOW);
       break;
   }
   
   delay(100);
 
-  analogWrite(ENGINE_ENABLE, speedPwm);
+  analogWrite(MAIN_ENGINE_ENABLE, speedPwm);
 }
 
 void increaseSpeed() {
-  if (currentEngineState == BACKWARD) {
-    if (currentSpeed >= MIN_ENGINE_SPEED + SPEED_STEP) {
-      currentSpeed = currentSpeed - SPEED_STEP;
-      engineControl(currentSpeed, currentEngineState);
+  if (currentMainEngineState == BACKWARD) {
+    if (currentMainSpeed >= MIN_MAIN_ENGINE_SPEED + MAIN_ENGINE_SPEED_STEP) {
+      currentMainSpeed = currentMainSpeed - MAIN_ENGINE_SPEED_STEP;
+      mainEngineControl(currentMainSpeed, currentMainEngineState);
       return;
     }
 
-    if (currentSpeed == MIN_ENGINE_SPEED) {
-      currentEngineState == STOP;
+    if (currentMainSpeed == MIN_MAIN_ENGINE_SPEED) {
+      currentMainEngineState == STOP;
       return;
     }
   }
   
-  if (currentEngineState == STOP) {
-    currentEngineState = FORWARD;
+  if (currentMainEngineState == STOP) {
+    currentMainEngineState = FORWARD;
   }
 
-  if (currentEngineState == FORWARD) {
-    if (currentSpeed <= MAX_ENGINE_SPEED - SPEED_STEP) {
-      currentSpeed = currentSpeed + SPEED_STEP;
-      engineControl(currentSpeed, currentEngineState);
+  if (currentMainEngineState == FORWARD) {
+    if (currentMainSpeed <= MAX_MAIN_ENGINE_SPEED - MAIN_ENGINE_SPEED_STEP) {
+      currentMainSpeed = currentMainSpeed + MAIN_ENGINE_SPEED_STEP;
+      mainEngineControl(currentMainSpeed, currentMainEngineState);
       return;
     }
   }
 }
 
 void decreaseSpeed() {
-  if (currentEngineState == FORWARD) {
-    if (currentSpeed >= MIN_ENGINE_SPEED + SPEED_STEP) {
-      currentSpeed = currentSpeed - SPEED_STEP;
-      engineControl(currentSpeed, currentEngineState);
+  if (currentMainEngineState == FORWARD) {
+    if (currentMainSpeed >= MIN_MAIN_ENGINE_SPEED + MAIN_ENGINE_SPEED_STEP) {
+      currentMainSpeed = currentMainSpeed - MAIN_ENGINE_SPEED_STEP;
+      mainEngineControl(currentMainSpeed, currentMainEngineState);
       return;
     }
 
-    if (currentSpeed == MIN_ENGINE_SPEED) {
-      currentEngineState == STOP;
+    if (currentMainSpeed == MIN_MAIN_ENGINE_SPEED) {
+      currentMainEngineState == STOP;
       return;
     }
   }
   
-  if (currentEngineState == STOP) {
-    currentEngineState = BACKWARD;
+  if (currentMainEngineState == STOP) {
+    currentMainEngineState = BACKWARD;
   }
 
-  if (currentEngineState == BACKWARD) {
-    if (currentSpeed <= MAX_ENGINE_SPEED - SPEED_STEP) {
-      currentSpeed = currentSpeed + SPEED_STEP;
-      engineControl(currentSpeed, currentEngineState);
+  if (currentMainEngineState == BACKWARD) {
+    if (currentMainSpeed <= MAX_MAIN_ENGINE_SPEED - MAIN_ENGINE_SPEED_STEP) {
+      currentMainSpeed = currentMainSpeed + MAIN_ENGINE_SPEED_STEP;
+      mainEngineControl(currentMainSpeed, currentMainEngineState);
       return;
     }
   }
 }
 
-void stopEngine() {
-  currentEngineState = STOP;
-  currentSpeed = STOP_ENGINE_SPEED;
-  engineControl(currentSpeed, currentEngineState);
+void stopMainEngine() {
+  currentMainEngineState = STOP;
+  currentMainSpeed = STOP_MAIN_ENGINE_SPEED;
+  mainEngineControl(currentMainSpeed, currentMainEngineState);
 }
 
-// SERVO
-Servo servo;
+// TURNING ENGINE
+turningEngineState currentTurningEngineState = NONE;
+int16_t currentTurningSpeed = STOP_TURNING_ENGINE_SPEED;
 
-servoState currentServoState = CENTER;
-int16_t currentServoDegrees = START_SERVO_DEGREES;
-
-void servoControl(servoState state) {
+void turningEngineControl(int16_t speedPwm, turningEngineState state) {
   switch (state) {
     case LEFT:
-      if (currentServoDegrees <= MAX_SERVO_DEGREES - 5) {
-        currentServoDegrees = currentServoDegrees + 5;
-        servo.write(currentServoDegrees);
-      }
+      digitalWrite(TURNING_ENGINE_INPUT_1, LOW);
+      digitalWrite(TURNING_ENGINE_INPUT_2, HIGH);
       break;
 
     case RIGHT:
-      if (currentServoDegrees >= MIN_SERVO_DEGREES + 5) {
-        currentServoDegrees = currentServoDegrees - 5;
-        servo.write(currentServoDegrees);
-      }
+      digitalWrite(TURNING_ENGINE_INPUT_1, HIGH);
+      digitalWrite(TURNING_ENGINE_INPUT_2, LOW);
       break;
 
     default:
-      servo.write(START_SERVO_DEGREES);
+      digitalWrite(TURNING_ENGINE_INPUT_1, LOW);
+      digitalWrite(TURNING_ENGINE_INPUT_2, LOW);
       break;
   }
 
   delay(100);
+
+  analogWrite(TURNING_ENGINE_ENABLE, speedPwm);
+}
+
+void turnRight() {
+  if (currentTurningEngineState == LEFT) {
+    if (currentTurningSpeed >= MIN_TURNING_ENGINE_SPEED + TURNING_ENGINE_SPEED_STEP) {
+      currentTurningSpeed = currentTurningSpeed - TURNING_ENGINE_SPEED_STEP;
+      turningEngineControl(currentTurningSpeed, currentTurningEngineState);
+      return;
+    }
+
+    if (currentTurningSpeed == MIN_TURNING_ENGINE_SPEED) {
+      currentTurningEngineState == NONE;
+      return;
+    }
+  }
+  
+  if (currentTurningEngineState == NONE) {
+    currentTurningEngineState = RIGHT;
+  }
+
+  if (currentTurningEngineState == RIGHT) {
+    if (currentTurningSpeed <= MAX_TURNING_ENGINE_SPEED - TURNING_ENGINE_SPEED_STEP) {
+      currentTurningSpeed = currentTurningSpeed + TURNING_ENGINE_SPEED_STEP;
+      turningEngineControl(currentTurningSpeed, currentTurningEngineState);
+      return;
+    }
+  }
+}
+
+void turnLeft() {
+  if (currentTurningEngineState == RIGHT) {
+    if (currentTurningSpeed >= MIN_TURNING_ENGINE_SPEED + TURNING_ENGINE_SPEED_STEP) {
+      currentTurningSpeed = currentTurningSpeed - TURNING_ENGINE_SPEED_STEP;
+      turningEngineControl(currentTurningSpeed, currentTurningEngineState);
+      return;
+    }
+
+    if (currentTurningSpeed == MIN_TURNING_ENGINE_SPEED) {
+      currentTurningEngineState == NONE;
+      return;
+    }
+  }
+  
+  if (currentTurningEngineState == NONE) {
+    currentTurningEngineState = LEFT;
+  }
+
+  if (currentTurningEngineState == LEFT) {
+    if (currentTurningSpeed <= MAX_TURNING_ENGINE_SPEED - TURNING_ENGINE_SPEED_STEP) {
+      currentTurningSpeed = currentTurningSpeed + TURNING_ENGINE_SPEED_STEP;
+      turningEngineControl(currentTurningSpeed, currentTurningEngineState);
+      return;
+    }
+  }
+}
+
+void stopTurningEngine() {
+  currentTurningEngineState = NONE;
+  currentTurningSpeed = STOP_TURNING_ENGINE_SPEED;
+  turningEngineControl(currentTurningSpeed, currentTurningEngineState);
 }
 
 // IR SENSOR
+IRrecv irrecv(IR_SENSOR);
+decode_results results;
+
 void irControl() {
   if (irrecv.decode(&results)) {
     serialPrintUint64(results.value, HEX);
@@ -147,15 +207,15 @@ void irControl() {
         break;
         
       case IR_BTN_LEFT:
-        servoControl(LEFT);
+        turnLeft();
         break;
         
       case IR_BTN_RIGHT:
-        servoControl(RIGHT);
+        turnRight();
         break;
         
       case IR_BTN_STOP:
-        stopEngine();
+        stopMainEngine();
         break;
         
       case IR_BTN_SENSOR_TOGGLE:
@@ -172,20 +232,85 @@ void irControl() {
   delay(100);
 }
 
+void configModeCallback(WiFiManager *myWiFiManager);
+
+void configModeCallback(WiFiManager *myWiFiManager)
+{
+  Serial.println("Entered config mode");
+  Serial.println(WiFi.softAPIP());
+  Serial.println("Wifi Manager");
+  Serial.println("Please connect to AP");
+  Serial.println(myWiFiManager->getConfigPortalSSID());
+  Serial.println("To setup Wifi Configuration");
+  flashLED(20, 50);
+}
+
+void flashLED(uint16_t number, uint16_t delayTime)
+{
+  for (int inx = 0; inx <= number; inx++)
+  {
+    delay(delayTime);
+    digitalWrite(externalLight, LOW);  // ON
+    delay(delayTime);
+    digitalWrite(externalLight, HIGH);  // OFF
+    delay(delayTime);
+  }
+}
+
+String getContent() {
+  String html = "<!DOCTYPE HTML>";
+  html += "<html><head><title>CAR</title>";
+  html += "<meta charset='UTF-8'>";
+  html += "<meta name='viewport' content='width=device-width, initial-scale=1'>";
+  html += "</head><body>";
+  html += "<h1>NA működj pls</h1>";
+
+  html += "</body></html>";
+
+  return html;
+}
+
+void handleRoot() {
+  server.send(200, "text/html", getContent());
+  //flashLED(20, 50);
+}
+
 void setup() {
   Serial.begin(115200);
+  SPIFFS.begin();
+  delay(200);
 
-  pinMode(ENGINE_ENABLE, OUTPUT);
-  pinMode(ENGINE_INPUT_1, OUTPUT);
-  pinMode(ENGINE_INPUT_2, OUTPUT);
+  pinMode(MAIN_ENGINE_ENABLE, OUTPUT);
+  pinMode(MAIN_ENGINE_INPUT_1, OUTPUT);
+  pinMode(MAIN_ENGINE_INPUT_2, OUTPUT);
 
-  servo.attach(SERVO_INPUT);
   irrecv.enableIRIn();
 
-  engineControl(currentSpeed, currentEngineState);
-  servoControl(currentServoState);
+  mainEngineControl(currentMainSpeed, currentMainEngineState);
+  WiFiManager wifiManager;
+  wifiManager.setAPCallback(configModeCallback);
+  String hostname(HOSTNAME);
+  hostname += String(ESP.getChipId(), HEX);
+  if (!wifiManager.autoConnect((const char *) hostname.c_str()))
+  {
+    delay(3000);
+    WiFi.disconnect(true);
+    ESP.reset();
+    delay(5000);
+  }
+
+  if (MDNS.begin(hostname)) {
+    Serial.println("MDNS responder started");
+  }
+
+  server.serveStatic("/jquery-3.6.0.min.js", SPIFFS, "/jquery-3.6.0.min.js");
+
+  server.on("/", handleRoot);
+  server.begin();
 }
 
 void loop() {
   irControl();
+  server.handleClient();
+  MDNS.update();
 }

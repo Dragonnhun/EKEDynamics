@@ -2,31 +2,40 @@
 #include <IRremoteESP8266.h>
 #include <IRrecv.h>
 #include <IRutils.h>
-#include <Servo.h>
+#include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
+#include <WiFiManager.h>
+#include <PubSubClient.h>
+#include <ESP8266mDNS.h>
+#include "webinterface.h"
 
 // L293D H-BRIDGE
-#define ENGINE_ENABLE D4
-#define ENGINE_INPUT_1 D5
-#define ENGINE_INPUT_2 D6
+#define MAIN_ENGINE_ENABLE D4
+#define MAIN_ENGINE_INPUT_1 D5
+#define MAIN_ENGINE_INPUT_2 D6
 
-// SG90 MICRO SERVO
-#define SERVO_INPUT D1
+#define TURNING_ENGINE_ENABLE D1
+#define TURNING_ENGINE_INPUT_1 D2
+#define TURNING_ENGINE_INPUT_2 D0
 
 // IR SENSOR
 #define IR_SENSOR D3
 
 // SETTINGS
+#define HOSTNAME "TheCar"
+#define externalLight LED_BUILTIN
 
-// ENGINE
-#define MIN_ENGINE_SPEED 300
-#define MAX_ENGINE_SPEED 1000
-#define STOP_ENGINE_SPEED 200
-#define SPEED_STEP 100
+// MAIN ENGINE
+#define MIN_MAIN_ENGINE_SPEED 300
+#define MAX_MAIN_ENGINE_SPEED 1000
+#define STOP_MAIN_ENGINE_SPEED 200
+#define MAIN_ENGINE_SPEED_STEP 100
 
-// SERVO
-#define START_SERVO_DEGREES 90
-#define MAX_SERVO_DEGREES 135
-#define MIN_SERVO_DEGREES 45
+// TURNING ENGINE
+#define MIN_TURNING_ENGINE_SPEED 500
+#define MAX_TURNING_ENGINE_SPEED 1000
+#define STOP_TURNING_ENGINE_SPEED 0
+#define TURNING_ENGINE_SPEED_STEP 500
 
 // IR SENSOR
 #define IR_BTN_FORWARD 0xFF629D
