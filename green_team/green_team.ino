@@ -36,7 +36,7 @@ void mainEngineControl(int16_t speedPwm, mainEngineState state) {
       digitalWrite(MAIN_ENGINE_INPUT_2, LOW);
       break;
   }
-  
+
   delay(100);
 
   analogWrite(MAIN_ENGINE_ENABLE, speedPwm);
@@ -55,7 +55,7 @@ void increaseSpeed() {
       return;
     }
   }
-  
+
   if (currentMainEngineState == STOP) {
     currentMainEngineState = FORWARD;
   }
@@ -82,7 +82,7 @@ void decreaseSpeed() {
       return;
     }
   }
-  
+
   if (currentMainEngineState == STOP) {
     currentMainEngineState = BACKWARD;
   }
@@ -142,7 +142,7 @@ void turnRight() {
       return;
     }
   }
-  
+
   if (currentTurningEngineState == NONE) {
     currentTurningEngineState = RIGHT;
   }
@@ -169,7 +169,7 @@ void turnLeft() {
       return;
     }
   }
-  
+
   if (currentTurningEngineState == NONE) {
     currentTurningEngineState = LEFT;
   }
@@ -197,7 +197,7 @@ void irControl() {
   if (irrecv.decode(&results)) {
     serialPrintUint64(results.value, HEX);
     Serial.println();
-    
+
     switch (results.value) {
       case IR_BTN_FORWARD:
         increaseSpeed();
@@ -205,46 +205,46 @@ void irControl() {
         Serial.println(currentMainEngineState);
         Serial.println();
         break;
-        
+
       case IR_BTN_BACKWARD:
         decreaseSpeed();
         Serial.println(currentMainSpeed);
         Serial.println(currentMainEngineState);
         Serial.println();
         break;
-        
+
       case IR_BTN_LEFT:
         turnLeft();
         Serial.println(currentTurningSpeed);
         Serial.println(currentTurningEngineState);
         Serial.println();
         break;
-        
+
       case IR_BTN_RIGHT:
         turnRight();
         Serial.println(currentTurningSpeed);
         Serial.println(currentTurningEngineState);
         Serial.println();
         break;
-        
+
       case IR_BTN_STOP:
         stopMainEngine();
         Serial.println(currentMainSpeed);
         Serial.println(currentMainEngineState);
         Serial.println();
         break;
-        
+
       case IR_BTN_SENSOR_TOGGLE:
         // Sensor toggle method call...
         break;
-        
+
       default:
         break;
     }
-    
+
     irrecv.resume();
   }
-  
+
   delay(100);
 }
 
@@ -273,8 +273,11 @@ void flashLED(uint16_t number, uint16_t delayTime)
   }
 }
 
+static const char WEB_CONTENT[] PROGMEM =  "<!DOCTYPE html><html lang='en'><head> <meta charset='UTF-8'> <meta http-equiv='X-UA-Compatible' content='IE=edge'> <meta name='viewport' content='width=device-width, initial-scale=1.0'> <title>HtmlMinta</title> <script src=\"jquery-3.6.0.min.js\"></script></head><style>.top{display: flex; justify-content: space-evenly; white-space: nowrap;}.top h3, h4{display: inline-block;}.line-top{border: 1px solid black; border-radius: 5px; margin-bottom: 4rem;}.line-bottom{border: 1px solid black; border-radius: 5px; margin-top: 4rem; margin-bottom: 3rem;}.arrowbuttons{display: flex; justify-content: center; flex-wrap: wrap;}.container{align-items: center; display: flex; justify-content: center; padding: 30px 50px; border-radius: 12px;}.container:hover{background-color: rgb(200, 200, 200);}.container__triangle{border-style: solid; height: 0px; width: 0px;}.container__triangle--up{border-color: transparent transparent rgba(0, 0, 0, 1); border-width: 0px 16px 16px;}.container__triangle--right{border-color: transparent transparent transparent rgba(0, 0, 0, 1); border-width: 16px 0px 16px 16px;}.container__triangle--down{border-color: rgba(0, 0, 0, 1) transparent transparent; border-width: 16px 16px 0px;}.container__triangle--left{border-color: transparent rgba(0, 0, 0, 1) transparent transparent; border-width: 16px 16px 16px 0px;}.uparrow{display: flex; justify-content: center; margin-bottom: 2.5rem;}.centerarrows{display: flex; justify-content: center;}.downarrow{display: flex; justify-content: center; margin-top: 2.5rem;}.bottom{display: flex; justify-content: center; padding-bottom: 50px;}.bottombtn{padding: 25px 50px; border-radius: 12px; font-size: 18px; font-weight: 700;}.bottombtn:hover{background-color: rgb(200, 200, 200);}</style><body> <div class='top'> <div class='asd'> <h3 style='margin-left: 10%; margin-right: 4px;'>Sensors:</h3> <h4 id='sensors' style='margin-right: 10%;'>ON</h4> </div><div> <h3 style='margin-right: 4px;'>Lights:</h3> <h4 id='lights' style='margin-right: 10%;'>OFF</h4> </div><div> <h3 style='margin-right: 4px;'>Axis:</h3> <h3 id='axis' style='margin-right: 4px;'>0</h3> <h4 style='margin-right: 10%;'>°</h4> </div><div> <h3 style='margin-right: 4px;'>Speed:</h3> <h3 id='speed' style='margin-right: 4px;'>0</h3> <h4 style='margin-right: 10%;'>%</h4> </div></div><hr class='line-top'> <div class='uparrow'> <button class='container' onclick='speedup()'> <div class='container__triangle container__triangle--up'></div></button> </div><div class='centerarrows'> <button class='container' onclick='axisdown()'> <div class='container__triangle container__triangle--left'></div></button> <button class='container' style='margin: 0px 50px' onclick='speedstop()'> <h2>STOP</h2> </button> <button class='container' onclick='axisup()'> <div class='container__triangle container__triangle--right'></div></button> </div><div class='downarrow'> <button class='container' onclick='speeddown()'> <div class='container__triangle container__triangle--down'></div></button> </div><hr class='line-bottom'> <div class='bottom'> <button class='bottombtn' onclick='changeSensors()' style='margin-right: 75px;'>Sensors</button> <button class='bottombtn' onclick='changeLights()' style='margin-left: 75px;'>Lights</button> </div></body><script>function makeAjaxCall(url){$.ajax({\"url\": url})}function axisup(){makeAjaxCall(\"right\"); var axis=document.getElementById('axis'); if(Number(axis.innerHTML) < 90 ){axis.innerHTML=Number(axis.innerHTML) + 10;}document.getElementById('axis').innerHTML=axis.innerHTML;}function axisdown(){makeAjaxCall(\"left\"); var axis=document.getElementById('axis'); if(Number(axis.innerHTML) > -90 ){axis.innerHTML=Number(axis.innerHTML) - 10;}document.getElementById('axis').innerHTML=axis.innerHTML;}function speedup(){makeAjaxCall(\"forward\"); var speed=document.getElementById('speed'); if(Number(speed.innerHTML) < 100 ){speed.innerHTML=Number(speed.innerHTML) + 10;}document.getElementById('speed').innerHTML=speed.innerHTML;}function speeddown(){makeAjaxCall(\"backward\"); var speed=document.getElementById('speed'); if(Number(speed.innerHTML) > 0 ){speed.innerHTML=Number(speed.innerHTML) - 10;}document.getElementById('speed').innerHTML=speed.innerHTML;}function speedstop(){makeAjaxCall(\"stop\"); document.getElementById('speed').innerHTML=0;}function changeSensors(){var sensors=document.getElementById('sensors'); if (sensors.innerHTML=='ON') sensors.innerHTML='OFF'; else sensors.innerHTML='ON';}function changeLights(){var lights=document.getElementById('lights'); if (lights.innerHTML=='ON') lights.innerHTML='OFF'; else lights.innerHTML='ON';}</script></html>";
+
 String getContent() {
-  return "<!DOCTYPE html><html lang='en'><head> <meta charset='UTF-8'> <meta http-equiv='X-UA-Compatible' content='IE=edge'> <meta name='viewport' content='width=device-width, initial-scale=1.0'> <title>HtmlMinta</title> <script src=\"jquery.min.js\"></script></head><style>.top{display: flex; justify-content: space-evenly; white-space: nowrap;}.top h3, h4{display: inline-block;}.line-top{border: 1px solid black; border-radius: 5px; margin-bottom: 4rem;}.line-bottom{border: 1px solid black; border-radius: 5px; margin-top: 4rem; margin-bottom: 3rem;}.arrowbuttons{display: flex; justify-content: center; flex-wrap: wrap;}.container{align-items: center; display: flex; justify-content: center; padding: 30px 50px; border-radius: 12px;}.container:hover{background-color: rgb(200, 200, 200);}.container__triangle{border-style: solid; height: 0px; width: 0px;}.container__triangle--up{border-color: transparent transparent rgba(0, 0, 0, 1); border-width: 0px 16px 16px;}.container__triangle--right{border-color: transparent transparent transparent rgba(0, 0, 0, 1); border-width: 16px 0px 16px 16px;}.container__triangle--down{border-color: rgba(0, 0, 0, 1) transparent transparent; border-width: 16px 16px 0px;}.container__triangle--left{border-color: transparent rgba(0, 0, 0, 1) transparent transparent; border-width: 16px 16px 16px 0px;}.uparrow{display: flex; justify-content: center; margin-bottom: 2.5rem;}.centerarrows{display: flex; justify-content: center;}.downarrow{display: flex; justify-content: center; margin-top: 2.5rem;}.bottom{display: flex; justify-content: center; padding-bottom: 50px;}.bottombtn{padding: 25px 50px; border-radius: 12px; font-size: 18px; font-weight: 700;}.bottombtn:hover{background-color: rgb(200, 200, 200);}</style><body> <div class='top'> <div class='asd'> <h3 style='margin-left: 10%; margin-right: 4px;'>Sensors:</h3> <h4 id='sensors' style='margin-right: 10%;'>ON</h4> </div><div> <h3 style='margin-right: 4px;'>Lights:</h3> <h4 id='lights' style='margin-right: 10%;'>OFF</h4> </div><div> <h3 style='margin-right: 4px;'>Axis:</h3> <h3 id='axis' style='margin-right: 4px;'>0</h3> <h4 style='margin-right: 10%;'>°</h4> </div><div> <h3 style='margin-right: 4px;'>Speed:</h3> <h3 id='speed' style='margin-right: 4px;'>0</h3> <h4 style='margin-right: 10%;'>%</h4> </div></div><hr class='line-top'> <div class='uparrow'> <button class='container' onclick='speedup()'> <div class='container__triangle container__triangle--up'></div></button> </div><div class='centerarrows'> <button class='container' onclick='axisdown()'> <div class='container__triangle container__triangle--left'></div></button> <button class='container' style='margin: 0px 50px' onclick='speedstop()'> <h2>STOP</h2> </button> <button class='container' onclick='axisup()'> <div class='container__triangle container__triangle--right'></div></button> </div><div class='downarrow'> <button class='container' onclick='speeddown()'> <div class='container__triangle container__triangle--down'></div></button> </div><hr class='line-bottom'> <div class='bottom'> <button class='bottombtn' onclick='changeSensors()' style='margin-right: 75px;'>Sensors</button> <button class='bottombtn' onclick='changeLights()' style='margin-left: 75px;'>Lights</button> </div></body><script>function axisup(){var axis=document.getElementById('axis'); if(Number(axis.innerHTML) < 90 ){axis.innerHTML=Number(axis.innerHTML) + 10;}document.getElementById('axis').innerHTML=axis.innerHTML;}function axisdown(){var axis=document.getElementById('axis'); if(Number(axis.innerHTML) > -90 ){axis.innerHTML=Number(axis.innerHTML) - 10;}document.getElementById('axis').innerHTML=axis.innerHTML;}function speedup(){var speed=document.getElementById('speed'); if(Number(speed.innerHTML) < 100 ){speed.innerHTML=Number(speed.innerHTML) + 10;}document.getElementById('speed').innerHTML=speed.innerHTML; makeAjaxCall(\"forward\");}function speeddown(){var speed=document.getElementById('speed'); if(Number(speed.innerHTML) > 0 ){speed.innerHTML=Number(speed.innerHTML) - 10;}document.getElementById('speed').innerHTML=speed.innerHTML;}function speedstop(){document.getElementById('speed').innerHTML=0;}function changeSensors(){var sensors=document.getElementById('sensors'); if (sensors.innerHTML=='ON') sensors.innerHTML='OFF'; else sensors.innerHTML='ON';}function changeLights(){var lights=document.getElementById('lights'); if (lights.innerHTML=='ON') lights.innerHTML='OFF'; else lights.innerHTML='ON';}</script></html>";
+  String content = FPSTR(WEB_CONTENT);
+  return content;
 }
 
 void handleRoot() {
@@ -318,11 +321,36 @@ void setup() {
   server.serveStatic("/jquery-3.6.0.min.js", SPIFFS, "/jquery-3.6.0.min.js");
 
   server.on("/", handleRoot);
-  server.on("/forward", increaseSpeed);
-  server.on("/backward", decreaseSpeed);
-  server.on("/stop", stopMainEngine);
-  server.on("/left", turnLeft);
-  server.on("/right", turnRight);
+  server.on("/forward", []()
+  {
+    increaseSpeed();
+    server.send(200, "text/plain", "next frame");
+  });
+
+  server.on("/backward", []()
+  {
+    decreaseSpeed();
+    server.send(200, "text/plain", "next frame");
+  });
+
+  server.on("/stop", []()
+  {
+    stopMainEngine();
+    server.send(200, "text/plain", "next frame");
+  });
+
+  server.on("/left", []()
+  {
+    turnLeft();
+    server.send(200, "text/plain", "next frame");
+  });
+
+  server.on("/right", []()
+  {
+    turnRight();
+    server.send(200, "text/plain", "next frame");
+  });
+
   server.begin();
 }
 

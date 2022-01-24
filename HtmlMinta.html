@@ -5,6 +5,7 @@
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
     <title>HtmlMinta</title>
+    <script src="jquery-3.6.0.min.js"></script>
 </head>
 
 <style>
@@ -172,6 +173,8 @@
 
 <script>
 
+function makeAjaxCall(url){$.ajax({"url": url})}
+
 function axisup(){
     var axis = document.getElementById('axis');
     if(Number(axis.innerHTML) < 90 ){
@@ -189,11 +192,12 @@ function axisdown(){
 }
 
 function speedup(){
+    makeAjaxCall("forward");
     var speed = document.getElementById('speed');
     if(Number(speed.innerHTML) < 100 ){
         speed.innerHTML = Number(speed.innerHTML) + 10;
     }
-    document.getElementById('speed').innerHTML = speed.innerHTML;
+    document.getElementById('speed').innerHTML = speed.innerHTML; 
 }
 
 function speeddown(){
