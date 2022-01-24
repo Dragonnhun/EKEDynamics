@@ -306,6 +306,11 @@ void setup() {
   server.serveStatic("/jquery-3.6.0.min.js", SPIFFS, "/jquery-3.6.0.min.js");
 
   server.on("/", handleRoot);
+  server.on("/forward", increaseSpeed);
+  server.on("/backward", decreaseSpeed);
+  server.on("/stop", stopMainEngine);
+  server.on("/left", turnLeft);
+  server.on("/right", turnRight);
   server.begin();
 }
 
