@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teszt Oldal</title>
+</head>
+
+<style>
+    .top{
+        white-space: nowrap;
+    }
+
+    .top h3{
+        display: inline-block;
+    }
+
+    .line-top{
+        border: 1px solid black;
+        border-radius: 5px;
+        margin-bottom: 4rem;
+    }
+
+    .line-bottom{
+        border: 1px solid black;
+        border-radius: 5px;
+        margin-top: 4rem;
+        margin-bottom: 3rem;
+    }
+
+    .btn-group{
+        display: block;
+        margin: 0 auto;
+    }
+
+    .btn-group button {
+    background-color: #c5c5c5; 
+    border: 1px solid black;
+    border-radius: 12px; 
+    color: black; 
+    padding: 20px 20px; 
+    cursor: pointer; 
+    float: left; 
+    }
+
+    .btn-group:after {
+    content: "";
+    clear: both;
+    display: table;
+    }
+
+    .btn-group button:not(:last-child) {
+    border-right: none; 
+    }
+
+    .btn-group button:hover {
+    background-color: #303030;
+    color: white;
+    }
+</style>
+
+<body>
+    <div class="top">
+        <h3 style="margin-left:20%; margin-right: 35%;">SSID:</h3>
+        <h3 style="margin-right: 4px;">Axis:</h3>
+        <h3 id="axis" style="margin-right: 10%;">0</h3>
+        <h3 style="margin-right: 4px;">Speed:</h3>
+        <h3 id="speed">0</h3>        
+    </div>
+    <hr class="line-top">
+    <div class="btn-group" style="width:35%">
+        <button style="width:33.3%">FL</button>
+        <button style="width:33.3%">F</button>
+        <button style="width:33.3%; margin-bottom: 1em;">F-R</button>
+    </div>
+    <div class="btn-group" style="width:35%">
+        <button style="width:33.3%; border: 1px solid black;">L</button>
+        <button style="width:33.3%">Break</button>
+        <button style="width:33.3%; margin-bottom: 1em;">R</button>
+    </div>
+    <div class="btn-group" style="width:35%">
+        <button style="width:33.3%">BL</button>
+        <button style="width:33.3%">B</button>
+        <button style="width:33.3%">BR</button>
+    </div>
+    <hr class="line-bottom">
+    <div class="btn-group" style="width:35%">
+        <button style="width:33.3%; border: 1px solid black">Sensors</button>
+        <button style="width:33.3%; background:transparent; border:none; color:transparent;"></button>
+        <button style="width:33.3%">Lights</button>
+    </div>
+</body>
+
+<script>
+function changeAxisUp()
+{
+    document.getElementById("axis").innerHTML = '';
+}
+</script>
+
+</html>
