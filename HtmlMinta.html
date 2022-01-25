@@ -117,12 +117,8 @@
 
     <div class='top'>
         <div class='asd'>
-            <h3 style='margin-left: 10%; margin-right: 4px;'>Sensors:</h3>
-            <h4 id='sensors' style='margin-right: 10%;'>ON</h4>
-        </div>
-        <div>
-            <h3 style='margin-right: 4px;'>Lights:</h3>
-            <h4 id='lights' style='margin-right: 10%;'>OFF</h4>
+            <h3 style='margin-left: 10%; margin-right: 4px;'>Sensor:</h3>
+            <h4 id='sensor' style='margin-right: 10%;'>ON</h4>
         </div>
         <div>
             <h3 style='margin-right: 4px;'>Axis:</h3>
@@ -163,8 +159,7 @@
     <hr class='line-bottom'>
 
     <div class='bottom'>
-        <button class='bottombtn' onclick='changeSensors()' style='margin-right: 75px;'>Sensors</button>
-        <button class='bottombtn' onclick='changeLights()' style='margin-left: 75px;'>Lights</button>
+        <button class='bottombtn' onclick='changeSensor()'>Sensor</button>
     </div>
 
 </body>
@@ -215,19 +210,13 @@ function speedstop(){
     document.getElementById('axis').innerHTML = 0;
 }
 
-function changeSensors()
+function changeSensor()
 {
-    var sensors = document.getElementById('sensors');
-    if (sensors.innerHTML == 'ON') sensors.innerHTML = 'OFF';
-    else sensors.innerHTML = 'ON';
+    var sensor = document.getElementById('sensor');
+    if (sensor.innerHTML == 'ON') sensor.innerHTML = 'OFF';
+    else sensor.innerHTML = 'ON';
 }
 
-function changeLights()
-{
-    var lights = document.getElementById('lights');
-    if (lights.innerHTML == 'ON') lights.innerHTML = 'OFF';
-    else lights.innerHTML = 'ON';
-}
 </script>
 
 </html>
