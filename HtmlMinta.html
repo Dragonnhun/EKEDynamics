@@ -4,7 +4,7 @@
     <meta charset='UTF-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-    <title>HtmlMinta</title>
+    <title>NodeMcu Webes Felület</title>
     <script src="jquery-3.6.0.min.js"></script>
 </head>
 
@@ -127,12 +127,10 @@
         <div>
             <h3 style='margin-right: 4px;'>Axis:</h3>
             <h3 id='axis' style='margin-right: 4px;'>0</h3>
-            <h4 style='margin-right: 10%;'>°</h4>
         </div>
         <div>
             <h3 style='margin-right: 4px;'>Speed:</h3>
             <h3 id='speed' style='margin-right: 4px;'>0</h3>
-            <h4 style='margin-right: 10%;'>%</h4>
         </div>     
     </div>
     
@@ -177,16 +175,16 @@ function makeAjaxCall(url){$.ajax({"url": url})}
 
 function axisup(){
     var axis = document.getElementById('axis');
-    if(Number(axis.innerHTML) < 90 ){
-        axis.innerHTML = Number(axis.innerHTML) + 10;
+    if(Number(axis.innerHTML) < 1000 ){
+        axis.innerHTML = Number(axis.innerHTML) + 100;
     }
     document.getElementById('axis').innerHTML = axis.innerHTML;
 }
 
 function axisdown(){
     var axis = document.getElementById('axis');
-    if(Number(axis.innerHTML) > -90 ){
-        axis.innerHTML = Number(axis.innerHTML) - 10;
+    if(Number(axis.innerHTML) > -1000 ){
+        axis.innerHTML = Number(axis.innerHTML) - 100;
     }
     document.getElementById('axis').innerHTML = axis.innerHTML;
 }
@@ -194,22 +192,23 @@ function axisdown(){
 function speedup(){
     makeAjaxCall("forward");
     var speed = document.getElementById('speed');
-    if(Number(speed.innerHTML) < 100 ){
-        speed.innerHTML = Number(speed.innerHTML) + 10;
+    if(Number(speed.innerHTML) < 1000 ){
+        speed.innerHTML = Number(speed.innerHTML) + 100;
     }
     document.getElementById('speed').innerHTML = speed.innerHTML; 
 }
 
 function speeddown(){
     var speed = document.getElementById('speed');
-    if(Number(speed.innerHTML) > 0 ){
-        speed.innerHTML = Number(speed.innerHTML) - 10;
+    if(Number(speed.innerHTML) > -1000 ){
+        speed.innerHTML = Number(speed.innerHTML) - 100;
     }
     document.getElementById('speed').innerHTML = speed.innerHTML;
 }
 
 function speedstop(){
     document.getElementById('speed').innerHTML = 0;
+    document.getElementById('axis').innerHTML = 0;
 }
 
 function changeSensors()
