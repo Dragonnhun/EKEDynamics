@@ -174,6 +174,7 @@
 function makeAjaxCall(url){$.ajax({"url": url})}
 
 function axisup(){
+    makeAjaxCall("right");
     var axis = document.getElementById('axis');
     if(Number(axis.innerHTML) < 1000 ){
         axis.innerHTML = Number(axis.innerHTML) + 100;
@@ -182,6 +183,7 @@ function axisup(){
 }
 
 function axisdown(){
+    makeAjaxCall("left");
     var axis = document.getElementById('axis');
     if(Number(axis.innerHTML) > -1000 ){
         axis.innerHTML = Number(axis.innerHTML) - 100;
@@ -199,6 +201,7 @@ function speedup(){
 }
 
 function speeddown(){
+    makeAjaxCall("backward");
     var speed = document.getElementById('speed');
     if(Number(speed.innerHTML) > -1000 ){
         speed.innerHTML = Number(speed.innerHTML) - 100;
@@ -207,6 +210,7 @@ function speeddown(){
 }
 
 function speedstop(){
+    makeAjaxCall("stop");
     document.getElementById('speed').innerHTML = 0;
     document.getElementById('axis').innerHTML = 0;
 }
