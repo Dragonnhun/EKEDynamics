@@ -219,7 +219,11 @@ void irControl() {
         break;
 
       case IR_BTN_SENSOR_TOGGLE:
-        // Sensor toggle method call...
+        sensorsOnOff();
+        break;
+
+      case IR_BTN_TURNING_STOP:
+        stopTurningEngine();
         break;
 
       default:
@@ -281,25 +285,51 @@ void ultrasonicCheckDistance() {
   delayMicroseconds(10);
   digitalWrite(TRIG_PIN, LOW);
 
-  long duration = pulseIn(ECHO_PIN, HIGH);
-  distanceCm = calculateDistance(duration);
-  Serial.println("Distance:");
-  Serial.println(distanceCm);
+  /*
+    digitalWrite(TRIG_PIN_1, LOW);
+    delayMicroseconds(2);
+    digitalWrite(TRIG_PIN_1, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(TRIG_PIN_1, LOW);
+
+  */
+
+  long durationBack = pulseIn(ECHO_PIN, HIGH);
+  //long durationFront = pulseIn(ECHO_PIN_1, HIGH);
+
+  //distanceCmFront = calculateDistance(durationFront);
+  distanceCmBack = calculateDistance(durationBack);
+  //Serial.println("Distance:");
+  //Serial.println(distanceCmFront);
 }
 
 float calculateDistance(long duration) {
-  return  duration * SOUND_VELOCITY/2;
+  return  duration * SOUND_VELOCITY / 2;
 }
 
 void ultrasonicLoop() {
-    if (ultrasinicIsEnabled) {
+  if (ultrasinicIsEnabled) {
     ultrasonicCheckDistance();
 
-    if (distanceCm <= stopTrigerCm && currentMainEngineState != STOP) {
+    if ((/*distanceCmFront <= stopTrigerCm || */ distanceCmBack <= stopTrigerCm) && currentMainEngineState != STOP) {
       stopMainEngine();
       flashLED(20, 50);
     }
   }
+}
+
+void sensorsOnOff() {
+  ultrasinicIsEnabled = !ultrasinicIsEnabled;
+  flashLED(20, 20);
+
+  /*
+    if (ultrasinicIsEnabled) {
+      digitalWrite(SENSOR_LED, HIGH);
+    }
+    else {
+    digitalWrite(SENSOR_LED, LOW);
+    }
+  */
 }
 
 void setup() {
@@ -312,6 +342,12 @@ void setup() {
 
   // Set pin modes
 
+  //pinMode(SENSOR_LED, OUTPUT);
+
+  //pinMode(1, FUNCTION_3);
+  //pinMode(3, FUNCTION_3);
+
+
   pinMode(MAIN_ENGINE_ENABLE, OUTPUT);
   pinMode(MAIN_ENGINE_INPUT_1, OUTPUT);
   pinMode(MAIN_ENGINE_INPUT_2, OUTPUT);
@@ -320,8 +356,11 @@ void setup() {
   pinMode(TURNING_ENGINE_INPUT_1, OUTPUT);
   pinMode(TURNING_ENGINE_INPUT_2, OUTPUT);
 
-  pinMode(TRIG_PIN, OUTPUT); 
+  pinMode(TRIG_PIN, OUTPUT);
   pinMode(ECHO_PIN, INPUT);
+
+  //pinMode(TRIG_PIN_1, OUTPUT);
+  //pinMode(ECHO_PIN_1, INPUT);
 
   // Enable ir sensor
   irrecv.enableIRIn();
@@ -355,31 +394,43 @@ void setup() {
   server.on("/forward", []()
   {
     increaseSpeed();
-    server.send(200, "text/plain", "next frame");
+    server.send(200, "text/plain", "increaseSpeed");
   });
 
   server.on("/backward", []()
   {
     decreaseSpeed();
-    server.send(200, "text/plain", "next frame");
+    server.send(200, "text/plain", "backward");
   });
 
   server.on("/stop", []()
   {
     stopMainEngine();
-    server.send(200, "text/plain", "next frame");
+    server.send(200, "text/plain", "stop");
   });
 
   server.on("/left", []()
   {
     turnLeft();
-    server.send(200, "text/plain", "next frame");
+    server.send(200, "text/plain", "left");
   });
 
   server.on("/right", []()
   {
     turnRight();
-    server.send(200, "text/plain", "next frame");
+    server.send(200, "text/plain", "right");
+  });
+
+  server.on("/sesnors", []()
+  {
+    sensorsOnOff();
+    server.send(200, "text/plain", "sesnors");
+  });
+
+  server.on("/turning-stop", []()
+  {
+    stopTurningEngine();
+    server.send(200, "text/plain", "turning stop");
   });
 
   server.begin();

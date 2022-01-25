@@ -25,6 +25,11 @@
 #define TRIG_PIN D8
 #define ECHO_PIN D7
 
+//#define TRIG_PIN_1 3
+//#define ECHO_PIN_1 1
+
+//#define SENSOR_LED 10
+
 // IR SENSOR
 #define IR_SENSOR D3
 
@@ -51,6 +56,7 @@
 #define IR_BTN_RIGHT 0xFFC23D
 #define IR_BTN_STOP 0xFF02FD
 #define IR_BTN_SENSOR_TOGGLE 0xFF42BD
+#define IR_BTN_TURNING_STOP 0xFF52AD
 
 #pragma endregion
 
@@ -88,7 +94,8 @@ turningEngineState currentTurningEngineState = NONE;
 int16_t currentTurningSpeed = STOP_TURNING_ENGINE_SPEED;
 
 float stopTrigerCm = 15;
-float distanceCm;
+float distanceCmBack;
+//float distanceCmFront;
 boolean ultrasinicIsEnabled = true; 
 
 #pragma endregion
