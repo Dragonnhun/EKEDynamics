@@ -1,22 +1,6 @@
 #include "settings.h"
 
-enum mainEngineState {
-  STOP,
-  FORWARD,
-  BACKWARD,
-};
-
-enum turningEngineState {
-  NONE,
-  LEFT,
-  RIGHT,
-};
-
-// MAIN ENGINE
-mainEngineState currentMainEngineState = STOP;
-int16_t currentMainSpeed = STOP_MAIN_ENGINE_SPEED;
-
-ESP8266WebServer server(80);
+#pragma region Engine_control
 
 void mainEngineControl(int16_t speedPwm, mainEngineState state) {
   switch (state)
@@ -102,9 +86,9 @@ void stopMainEngine() {
   mainEngineControl(currentMainSpeed, currentMainEngineState);
 }
 
-// TURNING ENGINE
-turningEngineState currentTurningEngineState = NONE;
-int16_t currentTurningSpeed = STOP_TURNING_ENGINE_SPEED;
+#pragma endregion
+
+#pragma region Turning_engine
 
 void turningEngineControl(int16_t speedPwm, turningEngineState state) {
   switch (state) {
@@ -189,9 +173,9 @@ void stopTurningEngine() {
   turningEngineControl(currentTurningSpeed, currentTurningEngineState);
 }
 
-// IR SENSOR
-IRrecv irrecv(IR_SENSOR);
-decode_results results;
+#pragma endregion
+
+#pragma region Ir_controller
 
 void irControl() {
   if (irrecv.decode(&results)) {
@@ -248,7 +232,9 @@ void irControl() {
   delay(100);
 }
 
-void configModeCallback(WiFiManager *myWiFiManager);
+#pragma endregion
+
+#pragma Wifi_maneger
 
 void configModeCallback(WiFiManager *myWiFiManager)
 {
@@ -273,7 +259,9 @@ void flashLED(uint16_t number, uint16_t delayTime)
   }
 }
 
-static const char WEB_CONTENT[] PROGMEM =  "<!DOCTYPE html><html lang='en'><head> <meta charset='UTF-8'> <meta http-equiv='X-UA-Compatible' content='IE=edge'> <meta name='viewport' content='width=device-width, initial-scale=1.0'> <title>HtmlMinta</title> <script src=\"jquery-3.6.0.min.js\"></script></head><style>.top{display: flex; justify-content: space-evenly; white-space: nowrap;}.top h3, h4{display: inline-block;}.line-top{border: 1px solid black; border-radius: 5px; margin-bottom: 4rem;}.line-bottom{border: 1px solid black; border-radius: 5px; margin-top: 4rem; margin-bottom: 3rem;}.arrowbuttons{display: flex; justify-content: center; flex-wrap: wrap;}.container{align-items: center; display: flex; justify-content: center; padding: 30px 50px; border-radius: 12px;}.container:hover{background-color: rgb(200, 200, 200);}.container__triangle{border-style: solid; height: 0px; width: 0px;}.container__triangle--up{border-color: transparent transparent rgba(0, 0, 0, 1); border-width: 0px 16px 16px;}.container__triangle--right{border-color: transparent transparent transparent rgba(0, 0, 0, 1); border-width: 16px 0px 16px 16px;}.container__triangle--down{border-color: rgba(0, 0, 0, 1) transparent transparent; border-width: 16px 16px 0px;}.container__triangle--left{border-color: transparent rgba(0, 0, 0, 1) transparent transparent; border-width: 16px 16px 16px 0px;}.uparrow{display: flex; justify-content: center; margin-bottom: 2.5rem;}.centerarrows{display: flex; justify-content: center;}.downarrow{display: flex; justify-content: center; margin-top: 2.5rem;}.bottom{display: flex; justify-content: center; padding-bottom: 50px;}.bottombtn{padding: 25px 50px; border-radius: 12px; font-size: 18px; font-weight: 700;}.bottombtn:hover{background-color: rgb(200, 200, 200);}</style><body> <div class='top'> <div class='asd'> <h3 style='margin-left: 10%; margin-right: 4px;'>Sensors:</h3> <h4 id='sensors' style='margin-right: 10%;'>ON</h4> </div><div> <h3 style='margin-right: 4px;'>Lights:</h3> <h4 id='lights' style='margin-right: 10%;'>OFF</h4> </div><div> <h3 style='margin-right: 4px;'>Axis:</h3> <h3 id='axis' style='margin-right: 4px;'>0</h3> <h4 style='margin-right: 10%;'>°</h4> </div><div> <h3 style='margin-right: 4px;'>Speed:</h3> <h3 id='speed' style='margin-right: 4px;'>0</h3> <h4 style='margin-right: 10%;'>%</h4> </div></div><hr class='line-top'> <div class='uparrow'> <button class='container' onclick='speedup()'> <div class='container__triangle container__triangle--up'></div></button> </div><div class='centerarrows'> <button class='container' onclick='axisdown()'> <div class='container__triangle container__triangle--left'></div></button> <button class='container' style='margin: 0px 50px' onclick='speedstop()'> <h2>STOP</h2> </button> <button class='container' onclick='axisup()'> <div class='container__triangle container__triangle--right'></div></button> </div><div class='downarrow'> <button class='container' onclick='speeddown()'> <div class='container__triangle container__triangle--down'></div></button> </div><hr class='line-bottom'> <div class='bottom'> <button class='bottombtn' onclick='changeSensors()' style='margin-right: 75px;'>Sensors</button> <button class='bottombtn' onclick='changeLights()' style='margin-left: 75px;'>Lights</button> </div></body><script>function makeAjaxCall(url){$.ajax({\"url\": url})}function axisup(){makeAjaxCall(\"right\"); var axis=document.getElementById('axis'); if(Number(axis.innerHTML) < 90 ){axis.innerHTML=Number(axis.innerHTML) + 10;}document.getElementById('axis').innerHTML=axis.innerHTML;}function axisdown(){makeAjaxCall(\"left\"); var axis=document.getElementById('axis'); if(Number(axis.innerHTML) > -90 ){axis.innerHTML=Number(axis.innerHTML) - 10;}document.getElementById('axis').innerHTML=axis.innerHTML;}function speedup(){makeAjaxCall(\"forward\"); var speed=document.getElementById('speed'); if(Number(speed.innerHTML) < 100 ){speed.innerHTML=Number(speed.innerHTML) + 10;}document.getElementById('speed').innerHTML=speed.innerHTML;}function speeddown(){makeAjaxCall(\"backward\"); var speed=document.getElementById('speed'); if(Number(speed.innerHTML) > 0 ){speed.innerHTML=Number(speed.innerHTML) - 10;}document.getElementById('speed').innerHTML=speed.innerHTML;}function speedstop(){makeAjaxCall(\"stop\"); document.getElementById('speed').innerHTML=0;}function changeSensors(){var sensors=document.getElementById('sensors'); if (sensors.innerHTML=='ON') sensors.innerHTML='OFF'; else sensors.innerHTML='ON';}function changeLights(){var lights=document.getElementById('lights'); if (lights.innerHTML=='ON') lights.innerHTML='OFF'; else lights.innerHTML='ON';}</script></html>";
+#pragma endregion
+
+#pragma region Web_interface
 
 String getContent() {
   String content = FPSTR(WEB_CONTENT);
@@ -282,13 +270,47 @@ String getContent() {
 
 void handleRoot() {
   server.send(200, "text/html", getContent());
-  //flashLED(20, 50);
+}
+
+#pragma endregion
+
+void ultrasonicCheckDistance() {
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+
+  long duration = pulseIn(ECHO_PIN, HIGH);
+  distanceCm = calculateDistance(duration);
+  Serial.println("Distance:");
+  Serial.println(distanceCm);
+}
+
+float calculateDistance(long duration) {
+  return  duration * SOUND_VELOCITY/2;
+}
+
+void ultrasonicLoop() {
+    if (ultrasinicIsEnabled) {
+    ultrasonicCheckDistance();
+
+    if (distanceCm <= stopTrigerCm && currentMainEngineState != STOP) {
+      stopMainEngine();
+      flashLED(20, 50);
+    }
+  }
 }
 
 void setup() {
+  // Begin debug serial communication
   Serial.begin(115200);
+
+  // SPIFFS file system initialization
   SPIFFS.begin();
   delay(200);
+
+  // Set pin modes
 
   pinMode(MAIN_ENGINE_ENABLE, OUTPUT);
   pinMode(MAIN_ENGINE_INPUT_1, OUTPUT);
@@ -298,10 +320,17 @@ void setup() {
   pinMode(TURNING_ENGINE_INPUT_1, OUTPUT);
   pinMode(TURNING_ENGINE_INPUT_2, OUTPUT);
 
+  pinMode(TRIG_PIN, OUTPUT); 
+  pinMode(ECHO_PIN, INPUT);
+
+  // Enable ir sensor
   irrecv.enableIRIn();
 
+  // Set engines to basic state
   mainEngineControl(currentMainSpeed, currentMainEngineState);
   turningEngineControl(currentTurningSpeed, currentTurningEngineState);
+
+  // Start wifi manager
   WiFiManager wifiManager;
   wifiManager.setAPCallback(configModeCallback);
   String hostname(HOSTNAME);
@@ -317,6 +346,8 @@ void setup() {
   if (MDNS.begin(hostname)) {
     Serial.println("MDNS responder started");
   }
+
+  // Start webserver
 
   server.serveStatic("/jquery-3.6.0.min.js", SPIFFS, "/jquery-3.6.0.min.js");
 
@@ -358,4 +389,5 @@ void loop() {
   irControl();
   server.handleClient();
   MDNS.update();
+  ultrasonicLoop();
 }
