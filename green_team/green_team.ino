@@ -261,6 +261,14 @@ void flashLED(uint16_t number, uint16_t delayTime)
     digitalWrite(externalLight, HIGH);  // OFF
     delay(delayTime);
   }
+
+  if (ultrasonicIsEnabled) {
+    digitalWrite(externalLight, LOW);
+  }
+  else
+  {
+    digitalWrite(externalLight, HIGH);
+  }
 }
 
 #pragma endregion
@@ -308,10 +316,10 @@ float calculateDistance(long duration) {
 }
 
 void ultrasonicLoop() {
-  if (ultrasinicIsEnabled) {
+  if (ultrasonicIsEnabled) {
     ultrasonicCheckDistance();
 
-    if ((/*distanceCmFront <= stopTrigerCm || */ distanceCmBack <= stopTrigerCm) && currentMainEngineState != STOP) {
+    if ((distanceCmBack <= stopTrigerCm) && currentMainEngineState == BACKWARD) {
       stopMainEngine();
       flashLED(20, 50);
     }
@@ -319,11 +327,11 @@ void ultrasonicLoop() {
 }
 
 void sensorsOnOff() {
-  ultrasinicIsEnabled = !ultrasinicIsEnabled;
+  ultrasonicIsEnabled = !ultrasonicIsEnabled;
   flashLED(20, 20);
 
   /*
-    if (ultrasinicIsEnabled) {
+    if (ultrasonicIsEnabled) {
       digitalWrite(SENSOR_LED, HIGH);
     }
     else {
@@ -434,6 +442,8 @@ void setup() {
   });
 
   server.begin();
+
+  flashLED(10, 10);
 }
 
 void loop() {

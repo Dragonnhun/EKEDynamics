@@ -96,7 +96,7 @@ int16_t currentTurningSpeed = STOP_TURNING_ENGINE_SPEED;
 float stopTrigerCm = 15;
 float distanceCmBack;
 //float distanceCmFront;
-boolean ultrasinicIsEnabled = true; 
+boolean ultrasonicIsEnabled = true; 
 
 #pragma endregion
 
